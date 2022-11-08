@@ -5,14 +5,32 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from .serializers import ToDoSerializer
 
-from .models import ToDo
+from .models import Task
+from rest_framework.authentication import SessionAuthentication, BasicAuthentication
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
 # Create your views here.
+
+
+#@api_view(['GET', 'POST'])
+#def authenticator(request, format=None):
+#    content = {
+#        'user': str(request.user),
+#        'auth': str(request.auth)
+#    }
+@api_view(['GET'])
+def overview(request):
+    api_overview = {
+        'api': '/api'
+    }
+    return Response(api_overview)
 
 
 @api_view(['GET'])
 def task_list(request):
-    tasks = ToDo.objects.all()
-    serializer = ToDoSerializer(tasks, many=True)
+    queryset = Task.objects.all()
+    serializer = ToDoSerializer(queryset, many=True)
     return Response(serializer.data)
 
 
@@ -26,7 +44,7 @@ def task_create(request):
 
 @api_view(['POST'])
 def task_update(request, pk):
-    task = ToDo.objects.get(id=pk)
+    task = Task.objects.get(id=pk)
     serializer = ToDoSerializer(instance=task, data=request.data)
     if serializer.is_valid():
         serializer.save()
@@ -35,6 +53,6 @@ def task_update(request, pk):
 
 @api_view(['DELETE'])
 def task_delete(request, pk):
-    item = ToDo.objects.get(id=pk)
+    item = Task.objects.get(id=pk)
     item.delete()
     return Response('Item Successfully Removed')
